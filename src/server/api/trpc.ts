@@ -23,10 +23,9 @@ import { db } from "~/server/db";
  */
 // eslint-disable-next-line @typescript-eslint/require-await
 export const createTRPCContext = async (opts: CreateNextContextOptions) => {
-  const { req, res } = opts;
+  const { req } = opts;
 
-  // Get the session from the server using the getServerSession wrapper function
-  // const session = await getServerAuthSession({ req, res });
+  // Get the auth from clerk using the getAuth function
   const auth = getAuth(req);
 
   return {
@@ -67,7 +66,6 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
 /** Reusable middleware that enforces users are logged in before running the procedure. */
 const enforceUserIsAuthed = t.middleware(async ({ ctx, next }) => {
   if (!ctx.auth.userId) {
-    console.log('********************', ctx)
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
   return next({
