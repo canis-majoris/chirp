@@ -17,10 +17,10 @@ const CreatePostWizard = () => {
 
   const ctx = api.useUtils();
 
-  const { mutate, isLoading: isPosting } = api.post.create.useMutation({
+  const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
     onSuccess: () => {
       setInput('');
-      void ctx.post.getAll.invalidate();
+      void ctx.posts.getAll.invalidate();
     }
   });
 
@@ -48,7 +48,7 @@ const CreatePostWizard = () => {
   )
 }
 
-type PostWithUser = RouterOutputs["post"]["getAll"][number];
+type PostWithUser = RouterOutputs["posts"]["getAll"][number];
 
 const PostView = (props: PostWithUser) => {
   const { post, author } = props;
@@ -79,7 +79,7 @@ const PostView = (props: PostWithUser) => {
 }
 
 const Feed = () => {
-  const { data, isLoading } = api.post.getAll.useQuery();
+  const { data, isLoading } = api.posts.getAll.useQuery();
 
   if (isLoading) return <LoadingPage />;
 
@@ -94,7 +94,7 @@ const Feed = () => {
 
 export default function Home() {
   const { isSignedIn, isLoaded: userLoaded } = useUser();
-  api.post.getAll.useQuery();
+  api.posts.getAll.useQuery();
 
   if (!userLoaded) return <div />;
 
