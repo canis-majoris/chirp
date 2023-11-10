@@ -8,6 +8,7 @@ import superjson from 'superjson';
 import { appRouter } from '~/server/api/root';
 import { db } from '~/server/db';
 import Image from 'next/image';
+import { ProfileFeed } from '~/modules';
 
 type SlugPageProps = {
     username: string;
@@ -26,20 +27,23 @@ const SlugPage: NextPage<SlugPageProps> & WithLayout = ({ username }) => {
                 <title>{data.username}</title>
             </Head>
             <div>
-                <div className='bg-slate-600 h-36 relative'>
-                    <Image
-                        src={data.profileImageUrl ?? ''}
-                        alt={`${data.username}'s profile pic`}
-                        width={128}
-                        height={128}
-                        className='absolute bottom-0 left-0 ml-4 -mb-16 rounded-full border-4 border-black bg-black'
-                    />
+                <div className='flex flex-col sticky top-0 bg-black'>
+                    <div className='bg-slate-600 h-36 relative'>
+                        <Image
+                            src={data.profileImageUrl ?? ''}
+                            alt={`${data.username}'s profile pic`}
+                            width={128}
+                            height={128}
+                            className='absolute bottom-0 left-0 ml-4 -mb-16 rounded-full border-4 border-black bg-black'
+                        />
+                    </div>
+                    <div className='h-[64px]' />
+                    <div className='p-4 text-2xl font-bold'>
+                        @{data.username}
+                    </div>
+                    <div className='border-b border-slate-400' />
                 </div>
-                <div className='h-[64px]' />
-                <div className='p-4 text-2xl font-bold'>
-                    @{data.username}
-                </div>
-                <div className='border-b border-slate-400' />
+                <ProfileFeed userId={data.id} />
             </div>
         </>
     );

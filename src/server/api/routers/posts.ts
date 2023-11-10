@@ -1,4 +1,5 @@
 import { clerkClient } from '@clerk/nextjs';
+import { Post } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { Ratelimit } from "@upstash/ratelimit"; // for deno: see above
 import { Redis } from "@upstash/redis"; // see below for cloudflare and fastly adapters
@@ -23,6 +24,31 @@ const ratelimit = new Ratelimit({
    */
   prefix: "@upstash/ratelimit",
 });
+
+const addUserDataToPosts = async (posts: Post[]) => {
+  const users = (
+    await clerkClient.users.getUserList({
+      userId: posts.map((post) => post.authorId),
+      limit: 100,
+    })
+  ).map(filterUserForClient);
+
+  return posts.map((post) => {
+    const author = users.find((user) => user.id === post.authorId);
+
+    if (!author) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Could not find author",
+      });
+    }
+
+    return {
+      post,
+      author: users.find((user) => user.id === post.authorId),
+    };
+  });
+}
 
 export const postsRouter = createTRPCRouter({
   create: protectedProcedure
@@ -52,35 +78,33 @@ export const postsRouter = createTRPCRouter({
     return "you can now see this secret message!";
   }),
 
+  getPostsByUserId: publicProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      try {
+        const posts = await ctx.db.post.findMany({
+          where: { authorId: input.userId },
+          orderBy: [{ createdAt: "desc" }],
+          take: 100,
+        });
+
+        return await addUserDataToPosts(posts);
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: JSON.stringify(error),
+        });
+      }
+    }),
+
   getAll: publicProcedure.query(async ({ ctx }) => {
     try {
       const posts = await ctx.db.post.findMany({
+        orderBy: [{ createdAt: "desc" }],
         take: 100,
-        orderBy: [{ createdAt: "desc" }]
       });
 
-      const users = (
-        await clerkClient.users.getUserList({
-          userId: posts.map((post) => post.authorId),
-          limit: 100,
-        })
-      ).map(filterUserForClient);
-
-      return posts.map((post) => {
-        const author = users.find((user) => user.id === post.authorId);
-
-        if (!author) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Could not find author",
-          });
-        }
-
-        return {
-          post,
-          author: users.find((user) => user.id === post.authorId),
-        };
-      });
+      return await addUserDataToPosts(posts);
     } catch (error) {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
