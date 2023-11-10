@@ -3,12 +3,9 @@ import { type GetStaticProps, type NextPage } from 'next';
 import { type WithLayout } from '~/types/global';
 import MainLayout from '~/layouts/main';
 import { api } from '~/utils/api';
-import { createServerSideHelpers } from '@trpc/react-query/server';
-import superjson from 'superjson';
-import { appRouter } from '~/server/api/root';
-import { db } from '~/server/db';
 import Image from 'next/image';
 import { ProfileFeed } from '~/modules';
+import { generatessHelper } from '~/server/helpers/serverSideHelpers';
 
 type SlugPageProps = {
     username: string;
@@ -50,14 +47,7 @@ const SlugPage: NextPage<SlugPageProps> & WithLayout = ({ username }) => {
 };
 
 export const getStaticProps: GetStaticProps = async (context) => {
-    const helpers = createServerSideHelpers({
-        router: appRouter,
-        ctx: {
-            db,
-            userId: null,
-        },
-        transformer: superjson,
-    });
+    const helpers = generatessHelper();
 
     const slug = context.params?.slug;
 

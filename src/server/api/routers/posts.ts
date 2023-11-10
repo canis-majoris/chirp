@@ -67,6 +67,22 @@ export const postsRouter = createTRPCRouter({
       });
     }),
 
+  getById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      try {
+        const post = await ctx.db.post.findUnique({
+          where: { id: input.id },
+        });
+
+        if (!post) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        return (await addUserDataToPosts([post]))[0];
+      } catch (error) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      }
+    }),
+
   getLatest: protectedProcedure.query(({ ctx }) => {
     return ctx.db.post.findFirst({
       orderBy: { createdAt: "desc" },
