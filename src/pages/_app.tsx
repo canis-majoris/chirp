@@ -1,19 +1,15 @@
-import { type ReactNode, type ReactElement } from 'react';
 import { type NextPage } from 'next';
 import { type AppProps, type AppType } from "next/app";
 import { Toaster } from 'react-hot-toast';
 import { ClerkProvider } from '@clerk/nextjs';
+import { type WithLayout } from '~/types/global';
 
 import { api } from "~/utils/api";
 
 import "~/styles/globals.css";
 
-type NextPageWithLayout = NextPage & {
-  getLayout?: (page: ReactElement) => ReactNode;
-};
-
 type AppPropsWithLayout = AppProps & {
-  Component: NextPageWithLayout;
+  Component: NextPage & WithLayout;
 };
 
 const MyApp: AppType = ({
@@ -21,8 +17,10 @@ const MyApp: AppType = ({
   pageProps,
 }: AppPropsWithLayout) => {
 
-  const getLayout = Component.getLayout ?? ((page) => page);
-  const layout = getLayout(<Component {...pageProps} />);
+  const LayoutComponent = Component.layout ?? (({ children }) => <>{children}</>);
+  const layout = <LayoutComponent><Component {...pageProps} /></LayoutComponent>;
+
+  console.log('RERRRR',pageProps, Component)
 
   return (
     <ClerkProvider {...pageProps}>

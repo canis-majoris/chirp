@@ -1,8 +1,8 @@
-import { type ReactElement } from 'react';
 import { SignInButton, SignOutButton, useUser } from '@clerk/nextjs';
 import { api } from "~/utils/api";
 import MainLayout from '~/layouts/main';
 import { CreatePostWizard, Feed } from '~/modules';
+import Head from 'next/head';
 
 const MainPage = () => {
   const { isSignedIn, isLoaded: userLoaded } = useUser();
@@ -12,6 +12,9 @@ const MainPage = () => {
 
   return (
     <>
+      <Head>
+        <title>Chirp</title>
+      </Head>
       <div className='border-b border-slate-400 p-4 flex align-middle'>
         {!isSignedIn && <SignInButton />}
         {!!isSignedIn && (
@@ -26,6 +29,6 @@ const MainPage = () => {
   );
 }
 
-MainPage.getLayout = (page: ReactElement) => <MainLayout>{page}</MainLayout>;
+MainPage.layout = MainLayout;
 
 export default MainPage;

@@ -7,11 +7,12 @@ export default authMiddleware({
     publicRoutes: [
         // "/((?!api|trpc))(_next.*|.+\.[\w]+$)",
         '/',
+        // '/pages/[slug](.*)',
         '/api/(.*)',
     ],
     clockSkewInMs: 10000,
 });
 
 export const config = {
-    matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
+    matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)', '/pages/(.*)'],
 };

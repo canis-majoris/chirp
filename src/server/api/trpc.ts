@@ -29,7 +29,7 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   const auth = getAuth(req);
 
   return {
-    auth,
+    userId: auth.userId,
     db,
   };
 };
@@ -65,13 +65,13 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
 
 /** Reusable middleware that enforces users are logged in before running the procedure. */
 const enforceUserIsAuthed = t.middleware(async ({ ctx, next }) => {
-  if (!ctx.auth.userId) {
+  if (!ctx.userId) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
   return next({
     ctx: {
       // infers the `session` as non-nullable
-      auth: { ...ctx.auth },
+      userId: ctx.userId!,
     },
   });
 });

@@ -29,7 +29,7 @@ const PostView = (props: PostWithUser) => {
                             </span>
                         </Link>
                     )}
-                    <Link href={`/post/${post.id}`}  className='flex gap-1'>
+                    <Link href={`/post/${post.id}`} className='flex gap-1'>
                         <span className='font-thin text-slate-400'>·</span>
                         <span className='font-thin text-slate-400'>{dayjs(post.createdAt).fromNow()}</span>
                     </Link>
