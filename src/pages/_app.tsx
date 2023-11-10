@@ -20,8 +20,6 @@ const MyApp: AppType = ({
   const LayoutComponent = Component.layout ?? (({ children }) => <>{children}</>);
   const layout = <LayoutComponent><Component {...pageProps} /></LayoutComponent>;
 
-  console.log('RERRRR',pageProps, Component)
-
   return (
     <ClerkProvider {...pageProps}>
       <Toaster position='bottom-center' />
